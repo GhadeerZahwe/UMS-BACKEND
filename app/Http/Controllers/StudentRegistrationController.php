@@ -28,20 +28,22 @@ class StudentRegistrationController extends Controller
     {
         $user = auth()->user();
         $student_id = $user['id'];
-//        $current_student= Student::where('user_id',$student_id)->get();
-        $current_registration= StudentRegistration::where('student_id',$student_id)->get();
-        $offered_courses_id= StudentRegistration::where('student_id',$student_id)->value('offered_course_id');
-        $offered_courses= StudentRegistration::where('student_id',$student_id)->get();
-        $courses = OfferedCourse::where('course_id',$offered_courses_id)->get();
-//        $courses_names=Course::where('id',$courses_id)->get();
-        $courses_details=['course_name','course_code','course_credit'];
-//        foreach ($courses as $course){
-
-
-//        }
-//        $courses_names=Course::where('id',1)->get();
-
-        return $courses;
+        $current_registrations = StudentRegistration::where('student_id', $student_id)->get();
+        foreach ($current_registrations as $current_registration) {
+            $offered_course_id = $current_registration['offered_course_id'];
+            $course_id_from_OfferedCourse = OfferedCourse::where('id', $offered_course_id)->value('course_id');
+            $course_id = Course::where('id', $course_id_from_OfferedCourse)->value('id');
+            $course_name = Course::where('id', $course_id_from_OfferedCourse)->value('course_name');
+            $course_code = Course::where('id', $course_id_from_OfferedCourse)->value('course_code');
+            $course_credit = Course::where('id', $course_id_from_OfferedCourse)->value('course_credit');
+            $finall_data[] = [
+                'course_id' => $course_id,
+                'course_name' => $course_name,
+                'course_code' => $course_code,
+                'course_credit' => $course_credit
+            ];
+        }
+        return $finall_data;
     }
 
 
